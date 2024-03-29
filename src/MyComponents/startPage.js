@@ -9,7 +9,6 @@ export default function startPage() {
           <div className="col-lg-12 col-xl-11">
             <div className="card text-black" style={{
                     borderRadius: '15px',
-                    /* boxShadow: '0 0 20px rgba(0, 0, 0, 0.1)', */
                     position: 'relative',
                     backgroundColor: 'transparent',
                     backdropFilter: 'blur(55px)',

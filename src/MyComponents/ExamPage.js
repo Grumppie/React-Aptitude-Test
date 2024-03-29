@@ -3,7 +3,6 @@ import { useParams, useNavigate} from 'react-router-dom';
 
 export const ExamPage = (props) => {
     let { sno } = useParams();
-    let newMarks=props.marks;
 
     let currentSno = sno;
 
@@ -17,15 +16,12 @@ export const ExamPage = (props) => {
     };
 
     const handleNextClick = () => {
-        // Pass both sno and selectedOption to onNextClick function
         currentSno = parseInt(sno);
         const nextSno = currentSno + 1;
 
         currentSno = String(currentSno);
 
-        console.log(newMarks);
-
-        props.onNextClick(currentSno, selectedOption, newMarks);
+        props.onNextClick(currentSno, selectedOption);
 
         navigate(`/exam1/${nextSno}`);
     };
@@ -35,7 +31,7 @@ export const ExamPage = (props) => {
     };
 
     if (!currentQuestion) {
-      return <div>Loading question...</div>; // Or any other fallback UI
+      return <div>Loading question...</div>; 
     }
 
 

@@ -4,8 +4,8 @@ import { ExamPage } from "./MyComponents/ExamPage";
 import { ResultPage } from "./MyComponents/ResultPage";
 import { AnalysisPage } from "./MyComponents/AnalysisPage";
 
-import React, { useState, useEffect, useContext,MarksContext} from 'react';
-import { BrowserRouter as Router, Routes, Route, useNavigate } from 'react-router-dom';
+import React, { useState, useEffect} from 'react';
+import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
 import jsonData from './csv_db_10.json';
 
 function App() {
@@ -16,6 +16,7 @@ function App() {
   // const [submissions_techData, setSubmissions_techData] = useState([]);
 
   let [marks, setMarks] = useState(0);
+
 
   useEffect(() => {
     // Check if jsonData contains the expected structure
@@ -39,19 +40,19 @@ function App() {
         // }
       });
     }
+    
   }, []);
 
-  const onNextClick = (sno, selectedOption, newMarks) => {
+  
+  const onNextClick = (sno, selectedOption) => {
     let currentQuestion = aptitudeData.find(item => item.sno === sno);
-
     if (currentQuestion && currentQuestion.answer === selectedOption) {
-      console.log("Correct Answer") 
-      setMarks(marks => marks + 1);
+      console.log("Correct Answer") ;
+      setMarks(marks + 1);
     }
     else {
       console.log("wrong")
     }
-    // alert(marks);
 
     alert(`Marks: ${marks}, ${sno}`);
 
@@ -81,7 +82,7 @@ function App() {
         <Routes>
           <Route exact path="/" element={<StartPage />} />
 
-          <Route path="/exam1/:sno" element={<ExamPage aptitudeData={aptitudeData} marks={marks} setMarks={setMarks} onNextClick={onNextClick} />} />
+          <Route path="/exam1/:sno" element={<ExamPage aptitudeData={aptitudeData} onNextClick={onNextClick} />} />
 
           <Route exact path="/result" element={<ResultPage marks={marks} percent={percent} />} />
 
@@ -91,9 +92,5 @@ function App() {
     </>
   );
 }
-
-export const useMarks = () => {
-  return useContext(MarksContext);
-};
 
 export default App;
