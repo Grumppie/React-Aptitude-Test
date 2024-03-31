@@ -1,5 +1,5 @@
 import './App.css';
-import StartPage from "./MyComponents/startPage";
+import { StartPage } from "./MyComponents/StartPage";
 import { ExamPage } from "./MyComponents/ExamPage";
 import { ResultPage } from "./MyComponents/ResultPage";
 import { AnalysisPage } from "./MyComponents/AnalysisPage";
@@ -53,9 +53,6 @@ function App() {
     else {
       console.log("wrong")
     }
-
-    alert(`Marks: ${marks}, ${sno}`);
-
   }
 
 
