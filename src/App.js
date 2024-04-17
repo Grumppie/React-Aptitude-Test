@@ -1,12 +1,11 @@
 import './App.css';
+
+import React, { useState, useEffect} from 'react';
+import { BrowserRouter as Router, Routes, Route, json } from 'react-router-dom';
 import { StartPage } from "./MyComponents/StartPage";
 import { ExamPage } from "./MyComponents/ExamPage";
 import { ResultPage } from "./MyComponents/ResultPage";
 import { AnalysisPage } from "./MyComponents/AnalysisPage";
-
-import React, { useState, useEffect} from 'react';
-import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
-import jsonData from './csv_db_10.json';
 
 function App() {
 
@@ -14,44 +13,57 @@ function App() {
   // const [technicalData, setTechnicalData] = useState([]);
   const [submissions_aptiData, setSubmissions_aptiData] = useState([]);
   // const [submissions_techData, setSubmissions_techData] = useState([]);
+   const [jsonData, setJsonData] = useState([]);
+   const [responses, setResponses] = useState([]);
+   const [time, setTime] = useState(0);
 
   let [marks, setMarks] = useState(0);
 
+  // const fetchData = async () => {
+  //   const response = await fetch('http://localhost:5000/fetchQuestions');
+  //   const data = await response.json();
+  //   console.log(data);
+  //   setJsonData(data);
+  // }
 
-  useEffect(() => {
+  useEffect( () => {
     // Check if jsonData contains the expected structure
-    if (jsonData && Array.isArray(jsonData) && jsonData.length > 0) {
-      // Iterate through jsonData to find the aptitude and technical tables
-      jsonData.forEach(item => {
-        if (item.name === 'aptitude' && item.data) {
-          setAptitudeData(item.data);
-        }
+    // await fetchData();
 
-        // else if (item.name === 'technical' && item.data) {
-        //   setTechnicalData(item.data);
-        // }
-
-        else if (item.name === 'submissions_apti' && item.data) {
-          setSubmissions_aptiData(item.data);
-        }
-
-        // else if (item.name === 'submissions_tech' && item.data) {
-        //   setSubmissions_techData(item.data);
-        // }
-      });
-    }
+    const fetchData = async () => {
+    const response = await fetch('http://localhost:5000/fetchQuestions?userAbility=40',
+    {
+      method: 'post',
+      headers: {
+        'Content-Type': 'application/json'
+      },
+      body: JSON.stringify({topics:['DBMS']})
+    });
+    const data = await response.json();
+    console.log(data);
+    setAptitudeData(data);
+  }
+    fetchData();
     
   }, []);
 
   
-  const onNextClick = (sno, selectedOption) => {
-    let currentQuestion = aptitudeData.find(item => item.sno === sno);
-    if (currentQuestion && currentQuestion.answer === selectedOption) {
+  const onNextClick = (id, selectedOption) => {
+    let currentQuestion = aptitudeData.find(item => item.id === id);
+    const correctOption = currentQuestion.metadata.answer;
+    const formatedOption = selectedOption.split('.')[0];
+
+    const timeTaken = Math.floor((Date.now() - time) / 1000);
+    setTime(Date.now());
+
+    if (currentQuestion && correctOption === formatedOption) {
       console.log("Correct Answer") ;
       setMarks(marks + 1);
+      setResponses([...responses, {id: id, response: 1, timeTaken}]);
     }
     else {
       console.log("wrong")
+      setResponses([...responses, {id: id, response: 0, timeTaken}]);
     }
   }
 
@@ -66,7 +78,7 @@ function App() {
     //   <h2>Aptitude Questions</h2>
     //   <ul>
     //     {aptitudeData.map(item => (
-    //       <li key={item.sno}>
+    //       <li key={item.id}>
     //         <div>{item.question}</div>
     //         <div>Options: {item.a}, {item.b}, {item.c}, {item.d}</div>
     //         <div>Answer: {item.answer}</div>
@@ -77,13 +89,13 @@ function App() {
     <>
       <Router>
         <Routes>
-          <Route exact path="/" element={<StartPage />} />
+          <Route exact path="/" element={<StartPage aptitudeData={aptitudeData} setTime={setTime} />} />
 
-          <Route path="/exam1/:sno" element={<ExamPage aptitudeData={aptitudeData} onNextClick={onNextClick} />} />
+          <Route path="/exam1/:id" element={<ExamPage aptitudeData={aptitudeData} onNextClick={onNextClick} setAptitudeData={setAptitudeData} responses={responses}/>} />
 
           <Route exact path="/result" element={<ResultPage marks={marks} percent={percent} />} />
 
-          <Route exact path="/analyse" element={<AnalysisPage aptitudeData={aptitudeData} allDates={submissions_aptiData.map(entry => entry.date)} allMarks={submissions_aptiData.map(entry => entry.score)} />} />
+          {/* <Route exact path="/analyse" element={<AnalysisPage aptitudeData={aptitudeData} allDates={submissions_aptiData.map(entry => entry.date)} allMarks={submissions_aptiData.map(entry => entry.score)} />} /> */}
         </Routes>
       </Router>
     </>

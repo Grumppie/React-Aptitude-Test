@@ -1,13 +1,15 @@
 import React from 'react'
 import { useNavigate } from 'react-router-dom';
 
-export const StartPage = () => {
+export const StartPage = ({aptitudeData,setTime}) => {
+
+    console.log(aptitudeData);
 
     const navigate = useNavigate();
 
     const requestFullScreen = () => {
-
-        navigate(`/exam1/1`);
+        setTime(Date.now())
+        navigate(`/exam1/${aptitudeData[0].id}`);
         if (document.documentElement.requestFullscreen) {
             document.documentElement.requestFullscreen();
         } else if (document.documentElement.mozRequestFullScreen) { /* Firefox */
@@ -20,7 +22,7 @@ export const StartPage = () => {
     };
 
     return (
-        <startPage>
+        <>
             <section className="vh-100 section-bg">
                 <div className="container h-100">
                     <div className="row d-flex justify-content-center align-items-center h-100">
@@ -54,7 +56,7 @@ export const StartPage = () => {
                     </div>
                 </div>
             </section>
-        </startPage>
+        </>
     )
 
 }

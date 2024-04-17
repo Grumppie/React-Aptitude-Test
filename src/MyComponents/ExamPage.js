@@ -2,11 +2,11 @@ import React, { useState } from 'react'
 import { useParams, useNavigate } from 'react-router-dom';
 
 export const ExamPage = (props) => {
-  let { sno } = useParams();
+  let { id } = useParams();
 
-  let currentSno = sno;
+  let currentid = id;
 
-  const currentQuestion = props.aptitudeData.find(item => item.sno === currentSno);
+  const currentQuestion = props.aptitudeData.find(item => item.id === currentid);
 
   const navigate = useNavigate();
   const [selectedOption, setSelectedOption] = useState(null);
@@ -17,21 +17,36 @@ export const ExamPage = (props) => {
 
   const handleNextClick = (event) => {
     event.preventDefault(); // Prevent form submission
-    currentSno = parseInt(sno);
-    const nextSno = currentSno + 1;
 
-    currentSno = String(currentSno);
+    const newAptitudeData = props.aptitudeData.filter(item => item.id !== currentid)
+    
+    if(newAptitudeData.length === 0) {
+      alert("No more questions left. Click Submit to see the result.");
+      return
+    }
 
-    props.onNextClick(currentSno, selectedOption);
+    props.setAptitudeData(newAptitudeData);
+    console.log("Selected Option: ", selectedOption);
+    props.onNextClick(currentid, selectedOption);
 
     setSelectedOption(null);
     document.querySelectorAll('input[type="radio"]').forEach(radio => radio.checked = false);
-    navigate(`/exam1/${nextSno}`);
+    navigate(`/exam1/${newAptitudeData[0].id}`);
   };
 
 
-  const handleSubmitClick = (event) => {
+  const handleSubmitClick = async(event) => {
     event.preventDefault(); // Prevent form submission
+    console.log(props.responses)
+    const res = await fetch('http://localhost:5000/updateScores', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({data:props.responses,user:{ability:0}}),
+    }).then(response => response.json())
+    console.log(JSON.stringify({data:props.responses,user:{ability:0}}))
+    console.log(res)
     navigate(`/result`);
   };
 
@@ -58,16 +73,16 @@ export const ExamPage = (props) => {
                       <form className="mx-1 mx-md-4" method="" action="" id="questionForm" onSubmit={e => e.preventDefault()}>
 
                         <div>
-                          <p>{currentQuestion.sno}. {currentQuestion.question}</p>
+                          <p>Q. {currentQuestion.metadata.question}</p>
                         </div>
-                        <input type="radio" id="a" name="options" value={currentQuestion.a} onChange={handleOptionChange} />
-                        <label htmlFor="a">{currentQuestion.a}</label><br />
-                        <input type="radio" id="b" name="options" value={currentQuestion.b} onChange={handleOptionChange} />
-                        <label htmlFor="b">{currentQuestion.b}</label><br />
-                        <input type="radio" id="c" name="options" value={currentQuestion.c} onChange={handleOptionChange} />
-                        <label htmlFor="c">{currentQuestion.c}</label><br />
-                        <input type="radio" id="d" name="options" value={currentQuestion.d} onChange={handleOptionChange} />
-                        <label htmlFor="d">{currentQuestion.d}</label><br /><br />
+                        <input type="radio" id="a" name="options" value={currentQuestion.metadata.choices[0]} onChange={handleOptionChange} />
+                        <label htmlFor="a">{currentQuestion.metadata.choices[0]}</label><br />
+                        <input type="radio" id="b" name="options" value={currentQuestion.metadata.choices[1]} onChange={handleOptionChange} />
+                        <label htmlFor="b">{currentQuestion.metadata.choices[1]}</label><br />
+                        <input type="radio" id="c" name="options" value={currentQuestion.metadata.choices[2]} onChange={handleOptionChange} />
+                        <label htmlFor="c">{currentQuestion.metadata.choices[2]}</label><br />
+                        <input type="radio" id="d" name="options" value={currentQuestion.metadata.choices[3]} onChange={handleOptionChange} />
+                        <label htmlFor="d">{currentQuestion.metadata.choices[3]}</label><br /><br />
                         <div className="d-flex justify-content-center">
                           <button type="submit" className="btn btn-primary btn-lg" id="nextButton" name="form_button" onClick={handleNextClick}>Next</button>
                         </div>
